@@ -10,149 +10,18 @@
 // }
 // 
 
-#define BUFFER_SIZE 1024
+#define  MY_REG_SOFTWARE_KEY_NAME		L"\\Registry\\Machine\\Software\\Zhangfan"
 
-
-VOID TestFileCreateOne()
+VOID TestCreateKey()
 {
-	HANDLE FileHand;
-	OBJECT_ATTRIBUTES ObjectAttributes;
+	HANDLE KeyHandle;
 
-	UNICODE_STRING UnicodeString;
-	
-	IO_STATUS_BLOCK IoStatusBlock;
-	RtlInitUnicodeString(&UnicodeString, L"\\??\\c:\\test1.log");
+	UNICODE_STRING RegisterUnicode;
 
-	InitializeObjectAttributes(&ObjectAttributes, &UnicodeString, OBJ_CASE_INSENSITIVE, NULL, NULL);
+	RtlInitUnicodeString(&RegisterUnicode, MY_REG_SOFTWARE_KEY_NAME)
 
-	NTSTATUS ntStatus = ZwCreateFile(&FileHand, GENERIC_WRITE, &ObjectAttributes, &IoStatusBlock, NULL,
-		FILE_ATTRIBUTE_NORMAL, FILE_SHARE_READ, FILE_OPEN_IF, FILE_SYNCHRONOUS_IO_NONALERT, NULL, 0);
-
-	KdPrint(("%d\n", IoStatusBlock.Information));
-
-	if(NT_SUCCESS(ntStatus))
-	{
-		KdPrint(("Create File Success \n"));
-	}
-	else
-	{
-		KdPrint(("Create File Error \n"));
-	}
-
-	FILE_STANDARD_INFORMATION fsi;
-
-	ntStatus = ZwQueryInformationFile(FileHand, &IoStatusBlock, &fsi,
-		sizeof(FILE_STANDARD_INFORMATION), FileStandardInformation);
-
-	KdPrint(("---> %d \n", fsi.EndOfFile.QuadPart));
-
-	PCHAR pBuffer = (PCHAR)ExAllocatePool(PagedPool, (LONG)fsi.EndOfFile.QuadPart);
-	
-
-
-	
-
-	ZwReadFile(FileHand, NULL, NULL, NULL, &IoStatusBlock, pBuffer, (LONG)fsi.EndOfFile.QuadPart, NULL, NULL);
-
-	KdPrint(("read %d bytes \n", IoStatusBlock.Information));
-
-	KdPrint(("%s \n", pBuffer));
-
-	ExFreePool(pBuffer);
-
-	ZwClose(FileHand);
-
-
-
-
-
-	/**
-	NTSTATUS ZwCreateFile(
-		PHANDLE FileHandle,
-		ACCESS_MASK DesiredAccess,
-		POBJECT_ATTRIBUTES ObjectAttributes,
-		PIO_STATUS_BLOCK IoStatusBlock,
-		PLARGE_INTEGER AllocationSize,
-		ULONG FileAttributes,
-		ULONG ShareAccess,
-		ULONG CreateDisposition,
-		ULONG CreateOptions,
-		PVOID EaBuffer,
-		EaLength
-		);
-
-		*/
+	ZwCreateKey(&KeyHandle,)
 }
-
-
-VOID TestFileCreateTwo()
-{
-	HANDLE FileHand;
-	OBJECT_ATTRIBUTES ObjectAttributes;
-	IO_STATUS_BLOCK IoStatusBlock;
-
-	UNICODE_STRING FileName;
-	RtlInitUnicodeString(&FileName, L"\\??\\c:\\test2.log");
-
-
-	InitializeObjectAttributes(&ObjectAttributes, &FileName, OBJ_CASE_INSENSITIVE, NULL, NULL);
-
-	//
-	NTSTATUS ntStatus = ZwOpenFile(&FileHand, GENERIC_ALL, &ObjectAttributes, &IoStatusBlock,
-		FILE_SHARE_READ|FILE_SHARE_WRITE, FILE_SYNCHRONOUS_IO_NONALERT);
-
-	if(NT_SUCCESS(ntStatus))
-	{
-		KdPrint(("ok\n"));
-	}
-	else
-	{
-		KdPrint(("ERROR\n"));
-	}
-
-	PCHAR pBuffer = (PCHAR)ExAllocatePool(PagedPool, BUFFER_SIZE);
-
-	RtlFillMemory(pBuffer, BUFFER_SIZE, 0x00);
-
-	pBuffer[0] = 'q';
-	pBuffer[1] = 'k';
-	pBuffer[2] = 'h';
-	pBuffer[4] = 'd';
-	pBuffer[5] = 'f';
-	pBuffer[6] = '4';
-
-	ntStatus = ZwWriteFile(FileHand, NULL, NULL, NULL, &IoStatusBlock, pBuffer, BUFFER_SIZE, NULL, NULL);
-	if(NT_SUCCESS(ntStatus))
-	{
-		KdPrint(("ZwWriteFile ok\n"));
-	}
-	else
-	{
-		KdPrint(("ZwWriteFile ERROR\n"));
-	}
-
-	RtlFillMemory(pBuffer, BUFFER_SIZE, 0xBB);
-
-	LARGE_INTEGER number;
-	number.QuadPart = 1024i64;
-
-	ntStatus = ZwWriteFile(FileHand, NULL, NULL, NULL, &IoStatusBlock, pBuffer, BUFFER_SIZE, &number, NULL);
-	if(NT_SUCCESS(ntStatus))
-	{
-		KdPrint(("ZwWriteFile ok\n"));
-	}
-	else
-	{
-		KdPrint(("ZwWriteFile ERROR\n"));
-	}
-
-	ExFreePool(pBuffer);
-
-	ZwClose(FileHand);
-}
-
-
-
 
 
 #pragma INITCODE
@@ -175,14 +44,13 @@ extern "C" NTSTATUS DriverEntry(IN PDRIVER_OBJECT pDriverObject, IN PUNICODE_STR
 	 *
 	 */
 	KdPrint(("Enter DriverEntry 1 \n"));
-
-	TestFileCreateOne();
-	TestFileCreateTwo();
-
 	pDriverObject->DriverUnload = HelloDDKUnload;
 	pDriverObject->MajorFunction[IRP_MJ_CREATE] = HelloDDKDispatchRoutine;
+
 	pDriverObject->MajorFunction[IRP_MJ_CLOSE] = HelloDDKDispatchRoutine;
+
 	pDriverObject->MajorFunction[IRP_MJ_READ] = HelloDDKDispatchRoutine;
+
 	status = CreateDevice(pDriverObject);
 
 	/*DisplayItsProcessName();*/
