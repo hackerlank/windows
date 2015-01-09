@@ -198,6 +198,7 @@
     #define RtlCopyMemory(Destination,Source,Length) /
             memcpy((Destination),(Source),(Length))
 
+    Destination:
     Length:表示要复制内存的长度，单位字节
 
 `2` 内存间复制(可重叠)
@@ -209,17 +210,48 @@
 
     #define RtlFillMemory(Destination,Length,Fill) 
             memset((Destination),(Fill),(Length))
+    Fill:需要填充的字节
 
     #define RtlZeroMemory(Destination,Length) memset((Destination),0,(Length))
 
-`4` 内存比价
+`4` 内存比较
     
     #define RtlEqualMemory(Destination,Source,Length)
             (!memcmp((Destination),(Source),(Length)))
 
-`5`
+    Length:比较的长度
+    返回值:相等的字节数
 
+####  其他
 
+  数据类型
+
+    void --> VOID;
+    char --> CHAR;
+    short --> SHORT;
+    long --> LONG;
+
+    wchar_t --> WCHAR;
+    char * --> PCHAR;
+    wchar_t * --> PWCHAR;
+
+####  检查内存可用性
+
+`1` 检查内存是否可读
+
+    VOID ProbeForRead (PVOID Address, SIZE_T Length, ULONG Alignment);
+
+    Address: 需要被检查的内存的地址
+    Length: 需要被检查的内存长度，单位是字节
+    Alignment: 描述该段内存是以多少字节对齐的
+
+`2` 检查内存是否可写
+
+    VOID ProbeForWrite (PVOID Address, SIZE_T Length, ULONG Alignment);
+
+    这两个函数不是返回该段内存是否可读写，而是当不可读写的时候,引发一个异常(Exception).这个异常需要用到微软编译器提供的"结构化异常"处理方法。"结构化异常"机制会轻松地检测到这个异常，进而做出相应的异常处理。
+
+####  结构化异常处理  (try -- except 块)
 
 
 

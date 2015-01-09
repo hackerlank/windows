@@ -13,24 +13,9 @@ VOID DisplayItProcessName()
 
 VOID TestMemory()
 {
-	LIST_ENTRY;
-	IsListEmpty();
+ProbeForRead();
+ProbeForWrite();
 
-	RemoveHeadList();
-
-	RemoveTailList();
-
-	CONTAINING_RECORD();
-
-	RtlCopyMemory();
-
-	RtlMoveMemory();
-
-	RtlFillMemory();
-
-	RtlZeroMemory();
-
-	RtlCopyBytes();
 
 }
 
