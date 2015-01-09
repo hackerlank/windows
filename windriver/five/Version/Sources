@@ -1,0 +1,9 @@
+TARGETNAME=HelloDDK
+TARGETTYPE=DRIVER
+
+TARGTPATH=OBJ
+
+INCLUDES=$(BASEDIR)\inc;\
+         $(BASEDIR)\inc\ddk;
+
+SOURCES=Driver.cpp

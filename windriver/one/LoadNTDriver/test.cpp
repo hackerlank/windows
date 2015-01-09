@@ -23,7 +23,6 @@ BOOL LoadNTDriver(char *lpszDriverName, char *lpszDriverPath)
 {
 
 	char szDriverImagePath[256];
-	printf("11---------\n");
 	GetFullPathName(lpszDriverPath, 256,szDriverImagePath, NULL);
 	printf("12---------\n");
 
